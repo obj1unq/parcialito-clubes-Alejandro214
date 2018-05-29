@@ -1,0 +1,24 @@
+import example.*
+
+describe "equipos" {
+ var delPotro = new Socio(aniosEnLaInstitucion = 50)
+ var pavon = new Jugador(valorDePase = 10000, cantidadDePartidosJugados = 100)
+ var equipoArsenal = new Equipo(capitan = pavon)
+ var actividad = new ActividadSocial(socioOrganizador = pavon, sociosParticipantes = #{delPotro})
+ var arsenal = new Club(actividadesSocial = #{actividad}, equipos = #{equipoArsenal}, socios = #{}, gastoMensual = 500)
+ var afa = new Municipio(valorParaActividadSocial = 50)
+
+
+test "pavon jugador estrella de arsenal" {
+	arsenal.esJugadorEstrella(pavon)
+	assert.that(arsenal.jugadorPerteneceAlClub(pavon))
+	
+}
+test "sancionar a asernal"{
+	afa.sancionarClub(arsenal)
+	assert.notThat(actividad.estaSuspendida())
+	assert.equals(1,equipoArsenal.cantidadDeSanciones())
+	
+}
+
+}

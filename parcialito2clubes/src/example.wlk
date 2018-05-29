@@ -1,6 +1,6 @@
 class Equipo {
 	var property cantidadDeSanciones = 0
-	var property campeonatosObtenidos
+	var property campeonatosObtenidos = 0
 	var capitan
 	var property jugadores = #{capitan}
     
@@ -23,9 +23,9 @@ class Club {
     method esJugadorEstrella(unJugador) = unJugador.cantidadDePartidosJugados() > 50 and
     self.jugadorPerteneceAlClub(unJugador)
     
-    method jugadorPerteneceAlClub(unJugador) = equipos.any({equipo=>equipo.jugadores().contains(unJugador)})
+    method jugadorPerteneceAlClub(unJugador) = equipos.any({equipo=> equipo.jugadores().contains(unJugador)})
     
-    method efectoDeSancion() {if(socios > 500){
+    method efectoDeSancion() {if(socios.size() > 500){
     	actividadesSocial.forEach({actividad => actividad.efectoDeSancion()})}
     	equipos.forEach({equipo=>equipo.efectoDeSancion()})
     	cantidadSancionesClub += 1
@@ -40,7 +40,7 @@ class Club {
     
     method agregarSocio(unSocio){socios.add(unSocio)}
     
-    method efectoDeEvaluacion(municipio) 
+    
 }	
 
 object valorParaClubProfesional {
@@ -52,7 +52,7 @@ class Jugador {
 
 }
 class ActividadSocial {
-	var property estaSuspendida
+	var property estaSuspendida = false
 	var property socioOrganizador
 	var property sociosParticipantes
 	
@@ -74,7 +74,7 @@ class ClubTradicional inherits Club {
 	override method esJugadorEstrella(unJugador) = unJugador.valorDePase() > 
      valorParaClubProfesional.valor() or unJugador.cantidadDeParticipaciones() > 3
      
-     override method efectoDeEvaluacion(municipio)=
+      method efectoDeEvaluacion(municipio)=
     actividadesSocial.sum({actividad => municipio.evaluacionActividadSocial()}) - gastoMensual
 
      
@@ -86,8 +86,8 @@ class ClubComunitario inherits Club{
 	unJugador.cantidadDeParticipacionesEnActividadesDeUnJugador() > 3
 
 	
-	override method efectoDeEvaluacion(municipio) =
-	actividadesSocial.sum({actividad => municipio.evaluacionActividadSocial()})
+	 method efectoDeEvaluacion(municipio) =
+	actividadesSocial.sum({actividad => municipio.evaluacionActividadSocial(self)})
 	
 	
 }
@@ -96,13 +96,18 @@ class ClubProfesional inherits Club{
 	override method esJugadorEstrella(unJugador) = unJugador.valorDePase() > 
      valorParaClubProfesional.valor()
      
-     override method efectoDeEvaluacion(municipio) =
+      method efectoDeEvaluacion(municipio) =
      actividadesSocial.sum({actividad => municipio.evaluacionActividadSocial()}) * 2 -(gastoMensual * 5)
 }
 
-class Sancion{
-  
-  method sancionarClub(club) {
+
+
+
+class Municipio {
+   var valorParaActividadSocial
+   
+    
+     method sancionarClub(club) {
   	 club.efectoDeSancion()
   }
   method sancionarActividad(unaActividad){unaActividad.efectoDeSacion()}
@@ -111,17 +116,11 @@ class Sancion{
   	  unaActividad.efectoDeReanudacionDeSancion()
   }
   
-  method cantidadDeSancionesDeUnEquipo(unEquipo) = unEquipo.cantidadDeSanciones()
+  method cantidadDeSancionesDeUnEquipo(unEquipo) =  unEquipo.cantidadDeSanciones()
   
   method actividadEstaSuspendida(unaActividad) = unaActividad.estaSuspendida()
   
- 
-}
-
-class Municipio {
-   var valorParaActividadSocial
-   
-   
+    
 	method evaluacionActividad(equipo) = (equipo.equipo().campeonatosObtenidos() * 5) +
 	(equipo.equipo().size() * 2)  + if(equipo.esJugadorEstrella(equipo.capitan()))5 else 0
 	- (equipo.cantidadSancionesClub()) * 20
